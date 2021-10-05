@@ -1,8 +1,3 @@
-/* [filename.c]
- * author: Curt Bridgers
- * email: prestonbridgers@gmail.com
-*/
-
 #include <stdio.h>
 #include <stdlib.h>
 
