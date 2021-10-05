@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
     int operand1 = 20;
     int operand2 = 20;
     printf("%d + %d = %d\n", operand1, operand2, sum(operand1, operand2));
-	return EXIT_SUCCESS;	
+    return EXIT_SUCCESS;	
 }
 
 asm(
