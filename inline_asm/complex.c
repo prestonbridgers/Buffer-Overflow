@@ -13,7 +13,8 @@ int main(int argc, char *argv[])
         "movl %1, %0;"           // Move operand1 to output
         "addl %2, %0;"           // Add operand2 to output
         : "=rm" (output)
-        : "irm" (operand1), "irm" (operand2) );
+        : "irm" (operand1), "irm" (operand2)
+    );
 
 
     printf("%d + %d = %d\n", operand1, operand2, output);
