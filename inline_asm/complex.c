@@ -16,8 +16,8 @@ int main(int argc, char *argv[])
         : "irm" (operand1), "irm" (operand2)
     );
 
-
     printf("%d + %d = %d\n", operand1, operand2, output);
+
     return EXIT_SUCCESS;
 }
 
