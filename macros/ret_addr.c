@@ -27,6 +27,6 @@ int foo() {
 int main(int argc, char *argv[])
 {
     printf("30 + 25 = %d\n", foo());
-	return EXIT_SUCCESS;	
+    return EXIT_SUCCESS;	
 }
 
