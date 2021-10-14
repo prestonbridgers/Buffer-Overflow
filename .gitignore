@@ -3,3 +3,4 @@ macros/*.out
 nCurses/*.out
 output_redirect/*.out
 output_redirect/log.txt
+inotify/*.out
