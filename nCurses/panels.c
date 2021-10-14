@@ -25,8 +25,8 @@ int main(int argc, char *argv[])
 
     // Init windows
     w1 = newwin(winLines, winColumns, begY, begX);
-    w2 = newwin(winLines, winColumns, begY+5, begX);
-    w3 = newwin(winLines, winColumns, begY+10, begX);
+    w2 = newwin(winLines, winColumns, begY+5, begX+5);
+    w3 = newwin(winLines, winColumns, begY+10, begX+10);
 
     // Adding borders to the windows
     box(w1, '|', '-');
@@ -35,6 +35,8 @@ int main(int argc, char *argv[])
 
     // Printing unique strings to each window
     mvwaddstr(w1, 1, 1, "This is window 1");
+    mvwaddstr(w1, 2, 1, "TAB to go to the next panel");
+    mvwaddstr(w1, 3, 1, "Press q to quit");
     mvwaddstr(w2, 1, 1, "This is window 2");
     mvwaddstr(w3, 1, 1, "This is window 3");
 
