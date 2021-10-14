@@ -22,6 +22,7 @@ int main(int argc, char *argv[])
     initscr();
     cbreak();
     noecho();
+    curs_set(0);
 
     // Init windows
     w1 = newwin(winLines, winColumns, begY, begX);
