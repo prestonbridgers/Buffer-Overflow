@@ -1,6 +1,20 @@
 # Buffer-Overflow
 Buffer overflow research and ideas/implementations.
 
+# Planned Features/Requirements
+
+The following are planned features and requirements that I want the project
+to have and conform to:
+
+- **Pretty nCurses layout**: Half of the screen on the left is reserved for 
+program stdout output. The other half is reserved for displaying stack info
+such as return address and visual recognition of buffer overflow.
+- **Output preservation**: Redirect program's output to a file. Monitor that file
+for changes and print that output to a nCurses window.
+- **Ease of use**: The library must be easy to use. Decorating an existing
+program must be a simple, streamlined process. Macros will likely be used
+liberally.
+
 # Directory Structure
 
 Code in this repository is organized by category with the use of
