@@ -1,0 +1,7 @@
+In inotify_start
+Things are happening
+ftell: 20
+Read "" from buffer
+Things are happening
+ftell: 45
+Read "" from buffer
