@@ -42,3 +42,9 @@ down on nCurses and its Panel library.
 
 This folder contains program examples of redirecting stdout output to a new
 file descriptor.
+
+## inotify
+
+This folder contains working examples of using the inotify subsystem to monitor
+a file/directory for changes. This subsystem will be used to monitor the
+decorated program for stdout output that has been redirected to a file.
