@@ -20,3 +20,8 @@ instead of normal C functions.
 
 This folder contains working nCurses programs as well as some notes I've jotted
 down on nCurses and its Panel library.
+
+## output\_redirect
+
+This folder contains program examples of redirecting stdout output to a new
+file descriptor.
