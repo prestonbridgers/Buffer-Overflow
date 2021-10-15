@@ -56,7 +56,7 @@ void *inotify_start(void *arg)
         int i = 0;
         int length;
         char buf[BUF_LEN];
-        long tell;
+        long last_read;
         int lastLen = 0;
 
         length = read(fd, buf, BUF_LEN);
@@ -68,18 +68,17 @@ void *inotify_start(void *arg)
 
             // When the file is modified
             // Read a line from log.txt
-            tell = ftell(wf->file);
-            fseek(wf->file, lastLen * -1, SEEK_CUR);
-            fprintf(stderr, "ftell: %ld\n", tell);
+            fseek(wf->file, last_read, SEEK_SET);
+            fprintf(stderr, "last_read: %ld\n", last_read);
             //fseek(wf->file, 0, SEEK_SET);
             fgets(buffer, 256, wf->file);
             lastLen = strlen(buffer);
-
 
             fprintf(stderr, "Read \"%s\" from buffer\n", buffer);
 
             // Print that line to the window
             mvwprintw(wf->win, cursY, 1, "%s", buffer);
+            box(wf->win, '|', '-');
             //mvwprintw(wf->win, cursY, 1, "Something happened");
             // Move the cursor to start of the next line in the window
             cursY++;
@@ -90,6 +89,7 @@ void *inotify_start(void *arg)
             doupdate();
 
             i += EVENT_SIZE + event->len;
+            last_read = ftell(wf->file);
         }
     }
     return NULL;

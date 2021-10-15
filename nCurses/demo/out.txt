@@ -1,7 +1,9 @@
 In inotify_start
 Things are happening
-ftell: 20
-Read "" from buffer
+last_read: 0
+Read "This is some output
+" from buffer
 Things are happening
-ftell: 45
-Read "" from buffer
+last_read: 20
+Read "This is some more output
+" from buffer
