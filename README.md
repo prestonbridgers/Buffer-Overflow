@@ -18,6 +18,17 @@ work visualizing the stack.
 program must be a simple, streamlined process. Macros will likely be used
 liberally.
 
+# Foreseen Challenges
+
+The following are challenges I expect to face in the future of the project:
+
+- Since nCurses also writes to stdout, redirecting stdout to a file will not
+work in preserving decorated program output. Decorated program output will
+need to be redirected to a file while maintaining stdout. This means something
+like a macro to change printf("My program's output\n") to
+fprintf(fd\_output, "My program's output\n"). I'm sure there are other ways
+of doing this.
+
 # Directory Structure
 
 Code in this repository is organized by category with the use of
