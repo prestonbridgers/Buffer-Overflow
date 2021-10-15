@@ -157,7 +157,10 @@ int main(int argc, char *argv[])
     wf->file = output;
 
     pthread_create(&thread, NULL, inotify_start, (void*) wf);
-    sleep(1);
+    // Is this 0.1 second sleep necessary?
+    // Could do an initial read before starting inotify to prevent the need
+    // for a delay.
+    usleep(100000); 
 
     // Example modification made to the output file that should be
     // reflected on the nCurses program output window
