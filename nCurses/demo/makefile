@@ -1,5 +1,5 @@
 main:
-	gcc main.c -lncurses -pthread -o run
+	gcc main.c -lncurses -pthread -o run.out
 
 clean:
 	@rm *.out
