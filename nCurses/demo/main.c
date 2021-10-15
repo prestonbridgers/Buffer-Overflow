@@ -164,7 +164,8 @@ int main(int argc, char *argv[])
 
     // Example modification made to the output file that should be
     // reflected on the nCurses program output window
-    for (int i = 0; i < 20; i++)
+    int i;
+    for (i = 0; i < 20; i++)
         fprintf(output, "Loop iteration: #%d\n", i + 1);
     fflush(output);
 
