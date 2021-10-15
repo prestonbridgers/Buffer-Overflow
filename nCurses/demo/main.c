@@ -17,6 +17,9 @@
 #define EVENT_SIZE (sizeof(struct inotify_event))
 #define BUF_LEN (MAX_EVENTS * (EVENT_SIZE + LEN_NAME))
 
+
+#define READ_BUF_SIZE 256
+
 typedef struct
 {
     WINDOW *win;
@@ -29,10 +32,14 @@ void *inotify_start(void *arg)
     int wd;
     int i = 0;
     int length;
-    char buffer[256];
     char *watch_path = "log.txt";
     winFile_t *wf = (winFile_t*) arg;
     int cursY = 1;
+    int cursX = 1;
+    char c;
+    long last_read;
+    int lastLen = 0;
+    char buf[BUF_LEN];
 
     fprintf(stderr, "In inotify_start\n");
 
@@ -53,41 +60,40 @@ void *inotify_start(void *arg)
 
     while (1)
     {
-        int i = 0;
-        int length;
-        char buf[BUF_LEN];
-        long last_read;
-        int lastLen = 0;
-
         length = read(fd, buf, BUF_LEN);
 
         while(i < length)
         {
-            fprintf(stderr, "Things are happening\n");
+            fprintf(stderr, "A modification event happened on log.txt\n");
             struct inotify_event *event = (struct inotify_event *) &buf[i];
 
-            // When the file is modified
-            // Read a line from log.txt
+            // When the file is modified read log.txt
+            fprintf(stderr, "Reading log.txt from byte %ld\n", last_read);
             fseek(wf->file, last_read, SEEK_SET);
-            fprintf(stderr, "last_read: %ld\n", last_read);
-            //fseek(wf->file, 0, SEEK_SET);
-            fgets(buffer, 256, wf->file);
-            lastLen = strlen(buffer);
+            while ((c = fgetc(wf->file)) != EOF)
+            {
+                // Increment cursY and set cursX to 1 on a \n character
+                if (c == '\n')
+                {
+                    cursY++;
+                    cursX = 1;
+                }
+                else
+                {
+                    // Print char to the window
+                    mvwaddch(wf->win, cursY, cursX++, c);
+                }
+            }
 
-            fprintf(stderr, "Read \"%s\" from buffer\n", buffer);
-
-            // Print that line to the window
-            mvwprintw(wf->win, cursY, 1, "%s", buffer);
+            // Rebox the window
             box(wf->win, '|', '-');
-            //mvwprintw(wf->win, cursY, 1, "Something happened");
-            // Move the cursor to start of the next line in the window
-            cursY++;
 
             // Refresh the screen
             wnoutrefresh(stdscr);
             wnoutrefresh(wf->win);
             doupdate();
 
+            // Increment and update variables
             i += EVENT_SIZE + event->len;
             last_read = ftell(wf->file);
         }
@@ -129,7 +135,6 @@ int main(int argc, char *argv[])
     box(stack, '|', '-');
 
     // Printing to windows
-    mvwprintw(std, 1, 1, "This is program stdout"); 
     mvwprintw(stack, 1, 1, "This is program stack dumps"); 
 
     // Printing title to stdscr
@@ -154,10 +159,10 @@ int main(int argc, char *argv[])
     pthread_create(&thread, NULL, inotify_start, (void*) wf);
     sleep(1);
 
-    fprintf(output, "This is some output\n");
-    fflush(output);
-    sleep(1);
-    fprintf(output, "This is some more output\n");
+    // Example modification made to the output file that should be
+    // reflected on the nCurses program output window
+    for (int i = 0; i < 20; i++)
+        fprintf(output, "Loop iteration: #%d\n", i + 1);
     fflush(output);
 
     getch();

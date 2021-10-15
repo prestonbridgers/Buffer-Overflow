@@ -1,9 +1,3 @@
 In inotify_start
-Things are happening
-last_read: 0
-Read "This is some output
-" from buffer
-Things are happening
-last_read: 20
-Read "This is some more output
-" from buffer
+A modification event happened on log.txt
+Reading log.txt from byte 0
