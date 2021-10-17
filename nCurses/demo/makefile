@@ -10,12 +10,12 @@ OBJDIR=obj
 SRCS=$(wildcard $(SRCDIR)/*.c)
 OBJS=$(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SRCS))
 
-BIN=main
+BIN=run.out
 
 all: $(BIN)
 
-main: $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) $(LFLAGS) -o $(BINDIR)/run.out
+$(BIN): $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) $(LFLAGS) -o $(BINDIR)/$@
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c $(INCDIR)/demo.h
 	$(CC) $(CFLAGS) -c $< -o $@
