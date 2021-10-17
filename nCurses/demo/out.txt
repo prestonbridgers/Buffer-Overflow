@@ -1,3 +1,9 @@
-In inotify_start
 A modification event happened on log.txt
 Reading log.txt from byte 0
+Reached the EOF character
+
+A modification event happened on log.txt
+Reading log.txt from byte 391
+Reached the EOF character
+
+inotify: isRunning is false, cleaning up...
