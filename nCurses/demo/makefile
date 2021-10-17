@@ -14,11 +14,17 @@ BIN=run.out
 
 all: $(BIN)
 
-$(BIN): $(OBJS)
+$(BIN): $(OBJS) | binarydir
 	$(CC) $(CFLAGS) $(OBJS) $(LFLAGS) -o $(BINDIR)/$@
 
-$(OBJDIR)/%.o: $(SRCDIR)/%.c $(INCDIR)/demo.h
+$(OBJDIR)/%.o: $(SRCDIR)/%.c $(INCDIR)/demo.h | objectdir
 	$(CC) $(CFLAGS) -c $< -o $@
+
+objectdir:
+	@mkdir -p $(OBJDIR)
+
+binarydir:
+	@mkdir -p $(BINDIR)
 
 run:
 	./$(BINDIR)/run.out 2> err.log
