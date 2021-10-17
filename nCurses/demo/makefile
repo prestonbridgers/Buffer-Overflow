@@ -1,19 +1,27 @@
 CC=gcc
 CFLAGS=-g -Wall
 LFLAGS=-lncurses -pthread
-OBJS=reader.o main.o
+
+SRCDIR=src
+BINDIR=bin
+INCDIR=include
+OBJDIR=obj
+
+SRCS=$(wildcard $(SRCDIR)/*.c)
+OBJS=$(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SRCS))
+
 BIN=main
 
 all: $(BIN)
 
 main: $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) $(LFLAGS) -o run.out
+	$(CC) $(CFLAGS) $(OBJS) $(LFLAGS) -o $(BINDIR)/run.out
 
-%.o: %.c demo.h
+$(OBJDIR)/%.o: $(SRCDIR)/%.c $(INCDIR)/demo.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 run:
-	./run.out 2> out.txt
+	./$(BINDIR)/run.out 2> err.log
 
 clean:
-	@rm *.out *.o
+	@rm $(OBJDIR)/* $(BINDIR)/*

@@ -8,7 +8,7 @@
 
 #include <curses.h>
 
-#include "demo.h"
+#include "../include/demo.h"
 
 int main(int argc, char *argv[])
 {
@@ -17,8 +17,8 @@ int main(int argc, char *argv[])
     WINDOW *stack;
     char title[] = "Welcome to Stack Visualizer v0.1";
 
-    // redirect stdout to a file called log.txt
-    output = fopen("./log.txt", "w+");
+    // redirect stdout to a file called output.txt
+    output = fopen("./output.txt", "w+");
     if (output == NULL)
     {
         printf("Fail to open file\n");

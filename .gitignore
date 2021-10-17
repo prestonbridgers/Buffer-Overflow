@@ -1,8 +1,10 @@
 inline_asm/*.out
 macros/*.out
 nCurses/*.out
-nCurses/demo/*.out
-nCurses/demo/*.o
+nCurses/demo/bin/*
+nCurses/demo/obj/*
+nCurses/demo/err.log
+nCurses/demo/output.txt
 output_redirect/*.out
 output_redirect/log.txt
 inotify/*.out

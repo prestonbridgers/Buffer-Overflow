@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <curses.h>
 
-#include "demo.h"
+#include "../include/demo.h"
 
 #define MAX_EVENTS 1024
 #define LEN_NAME 16
@@ -15,12 +15,12 @@ void *inotify_start(void *arg)
 {
     int fd; // File descriptor for the inotify instance
     int wd; // File descript for the inotify watch list
-    char *watch_path = "log.txt"; // The file I want to watch
+    char *watch_path = "output.txt"; // The file I want to watch
     winFile_t *wf = (winFile_t*) arg; // Casting argument to the expected struct
     int cursY = 1; // Initial y pos of the nCurses cursor
     int cursX = 1; // Initial x pos of the nCurses cursor
     char c; // Stores characters read from file when modification has occured
-    long last_read = 0; // The byte number of the last read character in log.txt
+    long last_read = 0; // The byte number of the last read character in output.txt
 
     // Initializing inotify in non-blocking mode
     fd = inotify_init1(IN_NONBLOCK);
@@ -30,11 +30,11 @@ void *inotify_start(void *arg)
         exit(1);
     }
 
-    // Adding ./log.txt to the watchlist (monitoring modifications)
+    // Adding ./output.txt to the watchlist (monitoring modifications)
     wd = inotify_add_watch(fd, watch_path, IN_MODIFY);
     if (wd == -1)
     {
-        fprintf(stderr, "Fail to add log.txt to inotify watch list\n");
+        fprintf(stderr, "Fail to add output.txt to inotify watch list\n");
         exit(1);
     }
 
@@ -54,11 +54,11 @@ void *inotify_start(void *arg)
         // While there are more events in the buffer to process
         while(i < length)
         {
-            fprintf(stderr, "A modification event happened on log.txt\n");
+            fprintf(stderr, "A modification event happened on output.txt\n");
             // Get a handle to the current event
             struct inotify_event *event = (struct inotify_event *) &buf[i];
 
-            fprintf(stderr, "Reading log.txt from byte %ld\n", last_read);
+            fprintf(stderr, "Reading output.txt from byte %ld\n", last_read);
 
             // Seeking to the end of what we've read in the file so far
             fseek(wf->file, last_read, SEEK_SET);
