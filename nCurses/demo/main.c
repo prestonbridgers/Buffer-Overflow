@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
     // Run inotify monitor loop writing to std window and monitoring
     // stdout for modifications.
     pthread_t thread;
-    winFile_t *wf = (winFile_t*) malloc(sizeof(wf));
+    winFile_t *wf = (winFile_t*) malloc(sizeof(winFile_t));
     wf->win = std;
     wf->file = output;
     wf->isRunning = 1;
@@ -88,6 +88,7 @@ int main(int argc, char *argv[])
     wf->isRunning = 0;
     pthread_join(thread, NULL);
 
+    free(wf);
     fclose(output);
     delwin(std);
     delwin(stack);
