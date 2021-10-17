@@ -27,7 +27,7 @@ binarydir:
 	@mkdir -p $(BINDIR)
 
 run:
-	./$(BINDIR)/run.out 2> err.log
+	./$(BINDIR)/$(BIN) 2> err.log
 
 clean:
 	@rm $(OBJDIR)/* $(BINDIR)/* err.log output.txt
