@@ -6,16 +6,16 @@
 // This is the same return address printing function
 // as is found is ../inline_asm/ret_addr.c but in macro
 // form.
-#define RET_ADDR  \
+#define RET_ADDR() {  \
     asm volatile ( \
         "mov $1, %%r8;" \
         "lea (%%rbp, %%r8, 8), %0;" \
-        : "=rm" (addr) ); \
+        : "=rm" (addr) );}
 
 void target()
 {
     uint64_t *addr;
-    RET_ADDR
+    RET_ADDR();
 
     printf("Target function was called\n");
 
@@ -29,7 +29,7 @@ int foo() {
     uint64_t ret_addr; // tmp variable to hold initial return address
 
     // Store return address in adr at the beginning of the function
-    RET_ADDR
+    RET_ADDR();
     // Save initial return addres into ret_addr
     ret_addr = *addr;
 
@@ -40,7 +40,7 @@ int foo() {
     *addr = 0x555555555149;
 
     // Setting addr to the new, modified return address
-    RET_ADDR
+    RET_ADDR();
     if (ret_addr != *addr)
         printf("Buffer overflow detected\n");
     else
