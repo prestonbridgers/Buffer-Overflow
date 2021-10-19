@@ -26,12 +26,12 @@ void target()
 
 int foo() {
     uint64_t *addr; // Tmp variable for the macro
-    uint64_t ret_addr; // tmp variable to hold initial return address
+    uint64_t initial_addr; // tmp variable to hold initial return address
 
     // Store return address in adr at the beginning of the function
     RET_ADDR();
     // Save initial return addres into ret_addr
-    ret_addr = *addr;
+    initial_addr = *addr;
 
     int operand1 = 30;
     int operand2 = 25;
@@ -41,7 +41,7 @@ int foo() {
 
     // Setting addr to the new, modified return address
     RET_ADDR();
-    if (ret_addr != *addr)
+    if (initial_addr != *addr)
         printf("Buffer overflow detected\n");
     else
         printf("Buffer overflow not detected\n");
