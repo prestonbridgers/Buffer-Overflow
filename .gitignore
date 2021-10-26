@@ -1,4 +1,5 @@
-inline_asm/*.out
+inline_asm/demo/obj/*
+inline_asm/demo/bin/*
 
 macros/*.out
 

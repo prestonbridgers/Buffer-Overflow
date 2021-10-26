@@ -76,7 +76,8 @@ void print_line(BasicWindow *win, uint64_t *line_ptr, int ypos)
 void print_stack(BasicWindow *win)
 {
     uint64_t *tmp = stack_ptr;
-    for (int i = 0; i < NUM_LINES; i++)
+    int i = 0;
+    for (i = 0; i < NUM_LINES; i++)
     {
         print_line(win, tmp, i);
         tmp++;
@@ -97,7 +98,8 @@ uint8_t foo(BasicWindow *win) {
     uint8_t my_buffer[16];
     GET_BUF_PTR(my_buffer);
 
-    for (int i = 0; i < 16; i++)
+    int i = 0;
+    for (i = 0; i < 16; i++)
     {
         my_buffer[i] = i;
         print_stack(win);
