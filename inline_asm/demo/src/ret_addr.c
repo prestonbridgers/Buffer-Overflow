@@ -1,8 +1,10 @@
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <unistd.h>
 #include <inttypes.h>
+#include "nlines.h"
 
 // GLOBALS
 uint64_t *ret_ptr;
@@ -27,30 +29,39 @@ uint64_t *buf_ptr;
 #define GET_BUF_PTR(buf) \
     buf_ptr = (uint64_t*)buf;
 
+#define NUM_LINES 10
+
 /* Prints a single 8 byte word to stderr:
  *
  * Ex:
  * 0x0007ffffffffe80c: 0x0f0e0d0c0b0a0908
- *
+ * 
+ * win      - The window to which to draw the stack
  * line_ptr - The address to print
+ * ypos     - The y position relative to win's origin to draw the lines.
  */
-void print_line(uint64_t *line_ptr)
+void print_line(BasicWindow *win, uint64_t *line_ptr, int ypos)
 {
-    fprintf(stderr, "%#018" PRIx64 ": %#018" PRIx64, (uint64_t)line_ptr, *line_ptr);
+    mvwprintw(win->window, ypos + 2, 2, "%#018" PRIx64 ": %#018" PRIx64, (uint64_t)line_ptr, *line_ptr);
     if (line_ptr == buf_ptr)
     {
-        fprintf(stderr, " <- Buffer");
+        wprintw(win->window, " <- Buffer");
     }
     else if (line_ptr == stack_ptr)
     {
-        fprintf(stderr, " <- %%RSP");
+        wprintw(win->window, " <- %%RSP");
     }
     else if (line_ptr == ret_ptr)
     {
-        fprintf(stderr, " <- Ret. Addr.");
+        wprintw(win->window, " <- Ret. Addr.");
     }
-    fprintf(stderr, "\n");
-
+    wprintw(win->window, "\n");
+    box(win->window, 0, 0);
+    mvwaddnstr(win->window, 0,
+               (win->meta.width / 2) - (strlen(win->meta.title) / 2),
+               win->meta.title, TITLE_SIZE);
+    mvwprintw(win->window, win->meta.height - 2, 2,
+              "Press 'q' to quit the program once the visualization has finished");
 }
 
 /* Prints 8 byte lines from the stack starting at address stack_ptr.
@@ -60,25 +71,28 @@ void print_line(uint64_t *line_ptr)
  *          brings the cursor back up to the start of the stack that has been
  *          printed. Using this prevents the prompt from being printed inside
  *          the stack after program completion.
+ * win    - The window to which to draw the stack.
  */
-void print_stack(int nlines, short done)
+void print_stack(BasicWindow *win)
 {
     uint64_t *tmp = stack_ptr;
-    for (int i = 0; i < nlines; i++)
+    for (int i = 0; i < NUM_LINES; i++)
     {
-        print_line(tmp);
+        print_line(win, tmp, i);
         tmp++;
     }
-
-    if (!done)
-        fprintf(stderr, "\033[%dF", nlines);
+    update_panels();
+    doupdate();
+    return;
 }
 
 /* Allocates a 16 byte buffer on the stack, sets each byte printing the stack
  * after each byte is set. A delay is used so that you can visually see the
  * stack setting each byte of the buffer.
+ *
+ * win - The window to which to draw the stack.
  */
-uint8_t foo() {
+uint8_t foo(BasicWindow *win) {
     GET_STACK_PTR();
     uint8_t my_buffer[16];
     GET_BUF_PTR(my_buffer);
@@ -86,7 +100,7 @@ uint8_t foo() {
     for (int i = 0; i < 16; i++)
     {
         my_buffer[i] = i;
-        print_stack(10, i == 15 ? 1 : 0);
+        print_stack(win);
         usleep(500000);
     }
 
@@ -99,8 +113,24 @@ uint8_t foo() {
  */
 int main(int argc, char *argv[])
 {
+    int win_width, win_height;
+    BasicWindow *win;
+
+    initscr();
+    curs_set(0);
+
+    win_width = COLS / 2;
+    win_height = LINES / 2;
+    win = nlines_basicwin_create("Memory Visualization v0.1", win_width,
+                                 win_height, NLINES_CENTER_COLS(win_width),
+                                 NLINES_CENTER_LINES(win_height));
+
     BEFORE_UNSAFE_CALL();
-    foo();
+    foo(win);
+
+    getch();
+    nlines_destroy((BaseWindow*)win);
+    endwin();
     return EXIT_SUCCESS;	
 }
 
