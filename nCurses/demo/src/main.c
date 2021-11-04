@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     output = fopen("./output.txt", "w+");
     if (output == NULL)
     {
-        printf("Fail to open file\n");
+        fprintf(stderr, "Fail to open file\n");
         exit(1);
     }
 
