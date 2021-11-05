@@ -13,10 +13,10 @@
  *****************************************************************/
 #define NUM_LINES 15
 
-uint8_t running;
-uint64_t *ret_ptr;
-uint64_t *stack_ptr;
-uint64_t *buf_ptr;
+uint8_t running = 1;
+uint64_t *ret_ptr = NULL;
+uint64_t *stack_ptr = NULL;
+uint64_t *buf_ptr = NULL;
 
 /******************************************************************
  *                           MACROS                               *
@@ -85,8 +85,6 @@ print_stack(WINDOW *win)
         print_line(win, tmp, i);
         tmp++;
     }
-    update_panels();
-    doupdate();
     return;
 }
 
@@ -135,24 +133,30 @@ cthread_run(void *arg)
     noecho();
 
     // Window widths
-    uint16_t w_src = COLS * 0.5 - 1;
-    uint16_t w_mem = COLS * 0.5 - 1;
-    uint16_t w_out = COLS - 2;
+    uint16_t w_src;
+    if (COLS % 2) { // If the terminal width is odd, add 1 to src panel width
+        w_src = COLS * 0.5 + 1;
+    } else {
+        w_src = COLS * 0.5;
+    }
+
+    uint16_t w_mem = COLS * 0.5 + 1;
+    uint16_t w_out = COLS;
 
     // Window heights
-    uint16_t h_src = LINES * 0.75 - 1;
-    uint16_t h_mem = LINES * 0.75 - 1;
-    uint16_t h_out = LINES * 0.25 - 1;
+    uint16_t h_src = LINES * 0.75;
+    uint16_t h_mem = LINES * 0.75;
+    uint16_t h_out = LINES * 0.25;
 
     // Window x positions
-    uint16_t x_src = 1;
-    uint16_t x_mem = w_src + 2;
-    uint16_t x_out = 1;
+    uint16_t x_src = 0;
+    uint16_t x_mem = w_src - 1;
+    uint16_t x_out = 0;
 
     // Window y positions
-    uint16_t y_src = 1;
-    uint16_t y_mem = 1;
-    uint16_t y_out = h_src + 1;
+    uint16_t y_src = 0;
+    uint16_t y_mem = 0;
+    uint16_t y_out = h_src - 1;
 
     // TODO: Setup inotify
 
@@ -160,11 +164,12 @@ cthread_run(void *arg)
     window_out = newwin(h_out, w_out, y_out, x_out);
     window_src = newwin(h_src, w_src, y_src, x_src);
     window_mem = newwin(h_mem, w_mem, y_mem, x_mem);
-    panel_out = new_panel(window_out);
     panel_src = new_panel(window_src);
     panel_mem = new_panel(window_mem);
+    panel_out = new_panel(window_out);
 
     // Check for and update bottom pannel
+
     // Update memory panel
     while (running) {
         print_stack(window_mem);
@@ -180,12 +185,12 @@ cthread_run(void *arg)
     }
 
     // Cleanup
-    delwin(window_out);
-    delwin(window_src);
-    delwin(window_mem);
     del_panel(panel_out);
     del_panel(panel_src);
     del_panel(panel_mem);
+    delwin(window_out);
+    delwin(window_src);
+    delwin(window_mem);
     endwin();
     return NULL;
 }
@@ -196,7 +201,7 @@ cthread_run(void *arg)
 void
 bad_func(void)
 {
-    char *hello = "0123456789012345";
+    char *hello = "012345678901234";
     char buf[16];
 
     GET_BUF_PTR(buf);
@@ -210,9 +215,6 @@ bad_func(void)
 int
 main(int argc, char *argv[])
 {
-    // Defining globals
-    running = 1;
-
     // Local variables
     pthread_t cthread;
     
