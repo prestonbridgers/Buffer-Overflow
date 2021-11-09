@@ -282,7 +282,6 @@ void
 bad_func(void)
 {
     fprintf(fd_output, "In bad func...\n");
-    fprintf(stderr, "Printed\n");
     fflush(fd_output);
 
     char *hello = "012345678901234";
