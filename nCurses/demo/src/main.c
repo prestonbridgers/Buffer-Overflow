@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
     char title[] = "Welcome to Stack Visualizer v0.1";
 
     // redirect stdout to a file called output.txt
-    output = fopen("./output.txt", "w+");
+    output = fopen("output.txt", "w+");
     if (output == NULL)
     {
         fprintf(stderr, "Fail to open file\n");
