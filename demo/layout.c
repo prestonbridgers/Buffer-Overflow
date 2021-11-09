@@ -284,7 +284,7 @@ bad_func(void)
     fprintf(fd_output, "In bad func...\n");
     fflush(fd_output);
 
-    char *hello = "012345678901234";
+    char *hello = "0123456789012345678";
     char buf[16];
 
     GET_BUF_PTR(buf);
