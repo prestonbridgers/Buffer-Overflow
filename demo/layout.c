@@ -119,7 +119,7 @@ my_strcpy(char *dest, const char *src)
     fprintf(fd_output, "In my_strcpy()...\n");
     fflush(fd_output);
 
-    fprintf(fd_output, "Buffer contents: ");
+    fprintf(fd_output, "Buffer contents: \"");
     fflush(fd_output);
 
     // Copy contents of src into dest
@@ -136,7 +136,7 @@ my_strcpy(char *dest, const char *src)
     // Insert the null character
     dest[i] = '\0';
 
-    fprintf(fd_output, "\n");
+    fprintf(fd_output, "\"\n");
     fflush(fd_output);
 
     return dest;
@@ -230,7 +230,6 @@ cthread_run(void *arg)
                 fprintf(stderr, "File %s was modified!\n", inotify_filename);
                 // Seeking to the end of what we've read in the file so far
                 fseek(fd_output, last_read, SEEK_SET);
-                fprintf(stderr, "last_read: %ld\n", last_read);
 
                 // Loop that reads the new lines of the file character by character
                 c = fgetc(fd_output);
@@ -242,13 +241,9 @@ cthread_run(void *arg)
                     else {
                         // Print the read character to the nCurses window
                         mvwaddch(window_out, cursY, cursX++, c);
-                        fprintf(stderr, "Printed %c to the screen\n", c);
                     }
                     // Read the next character
                     c = fgetc(fd_output);
-                    if (c == EOF) {
-                        fprintf(stderr, "Reached the EOF character\n\n");
-                    }
                 }
             }
             i += INOTIFY_EVENT_SIZE + event->len;
@@ -316,15 +311,15 @@ main(int argc, char *argv[])
 
     // BEGIN main content of the program
     fprintf(fd_output, "Calling bad_func() ...\n");
-    fprintf(stderr, "Printed\n");
     fflush(fd_output);
 
     BEFORE_UNSAFE_CALL();
     bad_func();
 
     fprintf(fd_output, "Returned from bad_func() ...\n");
-    fprintf(stderr, "Printed\n");
+    fprintf(fd_output, "Program has completed. Press 'q' to exit\n");
     fflush(fd_output);
+    sleep(1);
     // END main content of the program
     
     running = 0;
