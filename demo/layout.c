@@ -28,6 +28,7 @@ uint64_t *ret_ptr = NULL;
 uint64_t *stack_ptr = NULL;
 uint64_t *buf_ptr = NULL;
 FILE *fd_output;
+int func_line_start = 0;
 
 /******************************************************************
  *                           MACROS                               *
@@ -42,12 +43,67 @@ FILE *fd_output;
         : "=rm" (ret_ptr) );
 
 #define GET_STACK_PTR() \
+    func_line_start = __LINE__; \
     asm volatile ( \
         "mov %%rsp, %0;" \
         : "=rm" (stack_ptr) );
+    
 
 #define GET_BUF_PTR(buf) \
     buf_ptr = (uint64_t*)buf;
+
+/* Prints the calling function to an nCurses window.
+ *
+ * Usage - This function must be the first statement of the calling function.
+ *
+ * window - The nCurses window to be printed
+ */
+void
+print_current_function(WINDOW *window)
+{
+    FILE *fd = fopen(__FILE__,"r");
+    int current_line = 0;
+    char c;
+    short queue = 0;
+    short queue_initialized = 0;
+    int cursX = 1;
+    int cursY = 1;
+
+    while (current_line != func_line_start - 4) {
+        c = fgetc(fd);
+        if (c == '\n') {
+            current_line++;
+        }
+    }
+
+    c = fgetc(fd);
+    while (c != EOF) {
+        switch (c) {
+            case '{':
+                queue++;
+                queue_initialized = 1;
+                break;
+            case '}':
+                queue--;
+                break;
+        }
+
+        mvwaddch(window, cursY, cursX++, c);
+        if (c == '\n') {
+            cursX = 1;
+            cursY++;
+        }
+
+        if (queue == 0 && queue_initialized) {
+            putchar('\n');
+            break;
+        }
+
+        c = fgetc(fd);
+    }
+
+    fclose(fd);
+}
 
 /* Prints a single 8 byte word to stderr:
  *
@@ -149,6 +205,8 @@ void*
 cthread_run(void *arg)
 {
     // Variables
+    short src_printed = 0;
+
     WINDOW *window_out; // Program output window
     WINDOW *window_src; // Program source window
     WINDOW *window_mem; // Program memory window
@@ -248,6 +306,15 @@ cthread_run(void *arg)
             }
             i += INOTIFY_EVENT_SIZE + event->len;
             last_read = ftell(fd_output);
+        }
+
+        // If source has yet to be printed
+        if (!src_printed) {
+            // If func_line_start was set by bad function call
+            if (func_line_start) {
+                print_current_function(window_src);
+                src_printed = 1;
+            }
         }
         
         // Update memory panel
