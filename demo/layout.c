@@ -131,6 +131,8 @@ print_line(WINDOW *win, uint64_t *line_ptr, int ypos)
         wprintw(win, " <- Buffer");
         wattroff(win, COLOR_PAIR(GREEN_PAIR));
     }
+    //TODO: Calculate buf_ptr + 1 based on the size of the buffer that should
+    //      be passed to this function as a paramater.
     else if (line_ptr == buf_ptr + 1) {
         wattron(win, COLOR_PAIR(GREEN_PAIR));
         mvwprintw(win, ypos + 2, 2, "%#018" PRIx64, *line_ptr);
