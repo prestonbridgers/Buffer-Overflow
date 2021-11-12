@@ -22,6 +22,9 @@
     (INOTIFY_MAX_EVENTS * (INOTIFY_EVENT_SIZE + INOTIFY_NAME_LEN))
 
 #define NUM_LINES 15
+#define GREEN_PAIR 1
+#define YELLOW_PAIR 2
+#define RED_PAIR 3
 
 uint8_t running = 1;
 uint64_t *ret_ptr = NULL;
@@ -121,18 +124,36 @@ print_line(WINDOW *win, uint64_t *line_ptr, int ypos)
         return;
     }
 
-    mvwprintw(win, ypos + 2, 2, "%#018" PRIx64, *line_ptr);
-    if (line_ptr == buf_ptr)
-    {
+
+    if (line_ptr == buf_ptr) {
+        wattron(win, COLOR_PAIR(GREEN_PAIR));
+        mvwprintw(win, ypos + 2, 2, "%#018" PRIx64, *line_ptr);
         wprintw(win, " <- Buffer");
+        wattroff(win, COLOR_PAIR(GREEN_PAIR));
     }
-    else if (line_ptr == stack_ptr)
-    {
+    else if (line_ptr == buf_ptr + 1) {
+        wattron(win, COLOR_PAIR(GREEN_PAIR));
+        mvwprintw(win, ypos + 2, 2, "%#018" PRIx64, *line_ptr);
+        wattroff(win, COLOR_PAIR(GREEN_PAIR));
+    }
+    // BETWEEN END OF BUFFER AND RET ADDR
+    else if (line_ptr > buf_ptr + 1 && line_ptr < ret_ptr) {
+        wattron(win, COLOR_PAIR(YELLOW_PAIR));
+        mvwprintw(win, ypos + 2, 2, "%#018" PRIx64, *line_ptr);
+        wattroff(win, COLOR_PAIR(YELLOW_PAIR));
+    }
+    else if (line_ptr == stack_ptr) {
+        mvwprintw(win, ypos + 2, 2, "%#018" PRIx64, *line_ptr);
         wprintw(win, " <- %%RSP");
     }
-    else if (line_ptr == ret_ptr)
-    {
+    else if (line_ptr == ret_ptr) {
+        wattron(win, COLOR_PAIR(RED_PAIR));
+        mvwprintw(win, ypos + 2, 2, "%#018" PRIx64, *line_ptr);
         wprintw(win, " <- Ret. Addr.");
+        wattroff(win, COLOR_PAIR(RED_PAIR));
+    }
+    else {
+        mvwprintw(win, ypos + 2, 2, "%#018" PRIx64, *line_ptr);
     }
     wprintw(win, "\n");
 }
@@ -220,6 +241,16 @@ cthread_run(void *arg)
     curs_set(0);
     cbreak();
     noecho();
+
+    if (has_colors() == FALSE) {
+        fprintf(stderr, "Terminal doesn't support color\n");
+        endwin();
+        return NULL;
+    }
+    start_color();
+    init_pair(1, COLOR_GREEN, COLOR_BLACK);
+    init_pair(2, COLOR_YELLOW, COLOR_BLACK);
+    init_pair(3, COLOR_RED, COLOR_BLACK);
 
     // Window widths
     uint16_t w_src;
