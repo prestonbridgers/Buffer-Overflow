@@ -2,10 +2,13 @@ CC=gcc
 CFLAGS=-g -Wall
 LFLAGS=-pthread -lpanel -lcurses
 
-bovis: layout.o
+bovis: main.o ui.o
 	$(CC) $(LFLAGS) $^ -o $@
 
-layout.o: layout.c 
+main.o: main.c 
+	$(CC) $(CFLAGS) -c $< -o $@
+
+ui.o: ui.c 
 	$(CC) $(CFLAGS) -c $< -o $@
 
 run:

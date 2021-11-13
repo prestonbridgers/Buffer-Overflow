@@ -1,59 +1,17 @@
+/* [filename.c]
+ * author: Curt Bridgers
+ * email: prestonbridgers@gmail.com
+*/
+
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/inotify.h>
-#include <errno.h>
 #include <inttypes.h>
-#include <string.h>
 #include <stdint.h>
-#include <stdlib.h>
-#include <curses.h>
-#include <panel.h>
-#include <pthread.h>
-
-/******************************************************************
- *                          GLOBALS                               *
- *****************************************************************/
-#define INOTIFY_MAX_EVENTS 1024 // iNotify event maximum
-#define INOTIFY_NAME_LEN 32     // iNotify filename length maximum
-#define INOTIFY_EVENT_SIZE \
-    (sizeof(struct inotify_event))
-#define INOTIFY_BUF_LEN \
-    (INOTIFY_MAX_EVENTS * (INOTIFY_EVENT_SIZE + INOTIFY_NAME_LEN))
-
-#define NUM_LINES 15
-#define GREEN_PAIR 1
-#define YELLOW_PAIR 2
-#define RED_PAIR 3
-
-uint8_t running = 1;
-uint64_t *ret_ptr = NULL;
-uint64_t *stack_ptr = NULL;
-uint64_t *buf_ptr = NULL;
-FILE *fd_output;
-int func_line_start = 0;
-
-/******************************************************************
- *                           MACROS                               *
- *****************************************************************/
-#define BEFORE_UNSAFE_CALL() \
-    asm volatile ( \
-        "mov $1, %%r8;" \
-        "not %%r8;" \
-        "inc %%r8;" \
-        "lea (%%rsp, %%r8, 8), %%r9;" \
-        "mov %%r9, %0;" \
-        : "=rm" (ret_ptr) );
-
-#define GET_STACK_PTR() \
-    func_line_start = __LINE__; \
-    asm volatile ( \
-        "mov %%rsp, %0;" \
-        : "=rm" (stack_ptr) );
-    
-
-#define GET_BUF_PTR(buf) \
-    buf_ptr = (uint64_t*)buf;
+#include "bovis.h"
+#include "bovis_globals.h"
 
 /* Prints the calling function to an nCurses window.
  *
@@ -62,9 +20,9 @@ int func_line_start = 0;
  * window - The nCurses window to be printed
  */
 void
-print_current_function(WINDOW *window)
+print_current_function(WINDOW *window, char *filename)
 {
-    FILE *fd = fopen(__FILE__,"r");
+    FILE *fd = fopen(filename, "r");
     int current_line = 0;
     char c;
     short queue = 0;
@@ -185,41 +143,6 @@ print_stack(WINDOW *win)
     return;
 }
 
-/**
- * Rewritten c std library function that sleeps for 1 second after each write
- * to memory.
- */
-char*
-my_strcpy(char *dest, const char *src)
-{
-    GET_STACK_PTR();
-    size_t i;
-
-    fprintf(fd_output, "In my_strcpy()...\n");
-    fflush(fd_output);
-
-    fprintf(fd_output, "Buffer contents: \"");
-    fflush(fd_output);
-
-    // Copy contents of src into dest
-    i = 0;
-    while (src[i] != '\0') {
-        dest[i] = src[i];
-
-        fprintf(fd_output, "%c", src[i]);
-        fflush(fd_output);
-
-        i++;
-        sleep(1);
-    }
-    // Insert the null character
-    dest[i] = '\0';
-
-    fprintf(fd_output, "\"\n");
-    fflush(fd_output);
-
-    return dest;
-}
 
 /**
  * The nCurses thread run function.
@@ -345,7 +268,7 @@ cthread_run(void *arg)
         if (!src_printed) {
             // If func_line_start was set by bad function call
             if (func_line_start) {
-                print_current_function(window_src);
+                print_current_function(window_src, filename);
                 src_printed = 1;
             }
         }
@@ -374,56 +297,3 @@ cthread_run(void *arg)
     endwin();
     return NULL;
 }
-
-/**
- * Function that calls an unsafe subroutine.
- */
-void
-bad_func(void)
-{
-    fprintf(fd_output, "In bad func...\n");
-    fflush(fd_output);
-
-    char *hello = "0123456789012345678";
-    char buf[16];
-
-    GET_BUF_PTR(buf);
-    my_strcpy(buf, hello);
-    return;
-}
-
-/**
- * Entry point for the program.
- */
-int
-main(int argc, char *argv[])
-{
-    // Local variables
-    pthread_t cthread;
-   
-    fd_output = fopen("prog.out", "w+");
-    if (fd_output == NULL) {
-        fprintf(stderr, "Failed to open file prog.out\n");
-    }
-    pthread_create(&cthread, NULL, cthread_run, NULL);
-    sleep(1);
-
-    // BEGIN main content of the program
-    fprintf(fd_output, "Calling bad_func() ...\n");
-    fflush(fd_output);
-
-    BEFORE_UNSAFE_CALL();
-    bad_func();
-
-    fprintf(fd_output, "Returned from bad_func() ...\n");
-    fprintf(fd_output, "Program has completed. Press 'q' to exit\n");
-    fflush(fd_output);
-    sleep(1);
-    // END main content of the program
-    
-    running = 0;
-    pthread_join(cthread, NULL);
-    fclose(fd_output);
-	return EXIT_SUCCESS;	
-}
-
